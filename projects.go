@@ -107,6 +107,13 @@ type ForkProject struct {
 	Name      string `json:"name"`
 }
 
+// TransferProject represents a GitLab transfer.
+//
+// GitLab API docs: https://docs.gitlab.com/ee/api/projects.html#transfer-a-project-to-a-new-namespace
+type TransferProject struct {
+	Namespace string `json:"namespace"`
+}
+
 // Repository represents a repository.
 type Repository struct {
 	Name              string          `json:"name"`
@@ -519,6 +526,31 @@ func (s *ProjectsService) EditProject(pid interface{}, opt *EditProjectOptions, 
 	u := fmt.Sprintf("projects/%s", url.QueryEscape(project))
 
 	req, err := s.client.NewRequest("PUT", u, opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	p := new(Project)
+	resp, err := s.client.Do(req, p)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return p, resp, err
+}
+
+// TransferProject transfer a project to another namespace
+//
+// GitLab API docs: https://docs.gitlab.com/ee/api/projects.html#transfer-a-project-to-a-new-namespace
+func (s *ProjectsService) TransferProject(pid interface{}, opt *TransferProject, options ...OptionFunc) (*Project, *Response, error) {
+
+	project, err := parseID(pid)
+	if err != nil {
+		return nil, nil, err
+	}
+	u := fmt.Sprintf("projects/%s/transfer", url.QueryEscape(project))
+
+	req, err := s.client.NewRequest("POST", u, opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
