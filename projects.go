@@ -98,6 +98,15 @@ type Project struct {
 	CustomAttributes []*CustomAttribute `json:"custom_attributes"`
 }
 
+// ForkProject represents a GitLab fork project.
+//
+// GitLab API docs: https://docs.gitlab.com/ee/api/projects.html#fork-project
+type ForkProject struct {
+	Namespace string `json:"namespace"`
+	Path      string `json:"path"`
+	Name      string `json:"name"`
+}
+
 // Repository represents a repository.
 type Repository struct {
 	Name              string          `json:"name"`
@@ -527,14 +536,15 @@ func (s *ProjectsService) EditProject(pid interface{}, opt *EditProjectOptions, 
 // user.
 //
 // GitLab API docs: https://docs.gitlab.com/ce/api/projects.html#fork-project
-func (s *ProjectsService) ForkProject(pid interface{}, options ...OptionFunc) (*Project, *Response, error) {
+func (s *ProjectsService) ForkProject(pid interface{}, opt *ForkProject, options ...OptionFunc) (*Project, *Response, error) {
+
 	project, err := parseID(pid)
 	if err != nil {
 		return nil, nil, err
 	}
 	u := fmt.Sprintf("projects/%s/fork", url.QueryEscape(project))
 
-	req, err := s.client.NewRequest("POST", u, nil, options)
+	req, err := s.client.NewRequest("POST", u, opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
