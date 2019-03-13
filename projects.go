@@ -550,7 +550,7 @@ func (s *ProjectsService) TransferProject(pid interface{}, opt *TransferProject,
 	}
 	u := fmt.Sprintf("projects/%s/transfer", url.QueryEscape(project))
 
-	req, err := s.client.NewRequest("POST", u, opt, options)
+	req, err := s.client.NewRequest("PUT", u, opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
